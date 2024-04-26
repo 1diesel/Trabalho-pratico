@@ -1,8 +1,9 @@
 const bodyParser = require("body-parser");
 const express = require("express");
-const { utilizadorService } = require("../data/utilizador/utilizadorService"); // Import utilizadorService
+const Utilizador = require("../data/utilizador/utilizador"); // Import the Utilizador model
+const { utilizadorCreate } = require("../data/utilizador/utilizadorService"); // Import utilizadorService
 
-const service = utilizadorService(); // Initialize utilizadorService
+const utilizadorService = utilizadorCreate(Utilizador); // Pass Utilizador model to utilizadorCreate
 
 function AuthRouter(){
     let router = express();
@@ -13,8 +14,8 @@ function AuthRouter(){
     router.route("/registar").post(function (req, res, next) {
         const body = req.body;
         console.log("Utilizador:", body);
-        service.create(body) // Call the create function from utilizadorService
-        .then(() => service.createToken(body)) // Use service.createToken
+        utilizadorService.create(body) // Call the create function from utilizadorService
+        .then(() => utilizadorService.createToken(body)) // Use service.createToken
         .then((response) => {
             res.status(200);
             console.log("Token do Utilizador:", response);

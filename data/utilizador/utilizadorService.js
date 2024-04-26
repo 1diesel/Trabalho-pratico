@@ -12,9 +12,10 @@ function createToken(utilizador) {
     return { auth: true, token };
 }
 
-function utilizadorService(utilizadorModel) {
+function utilizadorCreate(utilizadorModel) {
     let service = {
         create,
+        createToken,
     };
 
     function create(utilizador) {
@@ -35,6 +36,5 @@ function utilizadorService(utilizadorModel) {
 }
 
 module.exports = {
-    createToken,
-    utilizadorService
+    utilizadorCreate
 };
