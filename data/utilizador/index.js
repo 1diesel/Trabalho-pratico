@@ -1,5 +1,6 @@
-const Utilizador = require("./utilizador");
-const UtilizadorController = require("./utilizadorController");
-const service = UtilizadorController(Utilizador);
+const utilizadorService = require("./utilizadorService");
 
-module.exports = service;
+// Access the createToken and utilizadorService properties from the utilizadorService object
+const { createToken, utilizadorService: service } = utilizadorService;
+
+module.exports = { createToken, service };
