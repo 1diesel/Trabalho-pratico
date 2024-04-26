@@ -5,11 +5,32 @@ const { utilizadorCreate } = require("../data/utilizador/utilizadorService"); //
 
 const utilizadorService = utilizadorCreate(Utilizador); // Pass Utilizador model to utilizadorCreate
 
-function AuthRouter(){
+function AuthRouter() {
     let router = express();
 
     router.use(bodyParser.json({ limit: "100mb" }));
     router.use(bodyParser.urlencoded({ limit: "100mb", extended: true}));
+
+    router.route("/me").get(function (req, res, next){
+        let token = req.headers["x-access-token"];
+
+        if (!token) {
+            return res
+                .status(401)
+                .send({ auth: false, message: "No token provided." });
+        }
+        return Utilizador.verifyToken(token)
+        .then((decoded) => {
+            console.log(decoded);
+
+            res.status(202).send({ auth: true, decoded });
+        })
+        .catch((err) => {
+            res.status(500);
+            res.send(err);
+            next();
+        });
+    });
 
     router.route("/registar").post(function (req, res, next) {
         const body = req.body;
