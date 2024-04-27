@@ -1,33 +1,38 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const Venda = require("../data/venda/venda");
+const vendas = require("../data/venda/venda");
+const controller = require("../data/venda/vendaController");
 
 const vendasRouter = () => {
-    let router = express.Router();
+  let router = express.Router();
 
-    router.use(bodyParser.json());
+  router.use(bodyParser.json());
 
-    router.route("/")
-        .get(async (req, res, next) => {
-            try {
-                const vendas = await Venda.find();
-                res.json(vendas);
-            } 
-                catch (err) 
-            {
-                next(err);
-            }
+  router
+    .route("/")
+    .get((req, res, next) => {
+      controller.listarVendas()
+        .then(vendas => {
+          res.json(vendas.data);
         })
-        .post(async (req, res, next) => {
-            try {
-                const venda = await Venda.create(req.body);
-                res.status(201).json(venda);
-            } catch (err) {
-                next(err);
-            }
+        .catch(err => {
+          console.error("Erro ao listar as vendas:", err);
+          res.status(500).json({ success: false, message: "Erro ao listar as vendas" });
         });
+    })
+    .post((req, res, next) => {
+      const { nrVenda, cliente, produtos, total, estado } = req.body;
+      controller.registrarVenda(nrVenda, cliente, produtos, total, estado)
+        .then(resultado => {
+          res.status(201).json(resultado);
+        })
+        .catch(err => {
+          console.error("Erro ao registrar a venda:", err);
+          res.status(500).json({ success: false, message: "Erro ao registrar a venda" });
+        });
+    });
 
-    return router;
+  return router;
 };
 
 module.exports = vendasRouter;

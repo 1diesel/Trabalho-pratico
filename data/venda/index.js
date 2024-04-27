@@ -1,5 +1,5 @@
-const Venda = require("./venda");
-const VendaController = require("./vendaController");
-const service = VendaController(Venda);
+const { Venda, Produto } = require("./venda");
+const vendaController = require("./vendaController");
+const service = vendaController(Venda, Produto);
 
 module.exports = service;

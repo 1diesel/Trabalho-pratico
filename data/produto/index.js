@@ -1,5 +1,5 @@
 const Produto = require("./produto");
-const ProdutoController = require("./produtoController");
-const service = ProdutoController(Produto);
+const produtoController = require("./produtoController");
+const service = produtoController(Produto);
 
 module.exports = service;
