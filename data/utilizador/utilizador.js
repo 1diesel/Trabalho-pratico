@@ -5,10 +5,9 @@ const config = require("../../config");
 
 // Define the Utilizador schema
 const UtilizadorSchema = new Schema({
-    username: { type: String, required: true, unique: true },
+    name: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     tipo: { type: String, required: true },
-    nome: { type: String, required: true },
     morada: { type: String, required: true },
     telemovel: { type: String, required: true },
     dataNascimento: { type: Date, required: true },
@@ -27,6 +26,11 @@ UtilizadorSchema.statics.verifyToken = function(token) {
             }
         });
     });
+};
+
+// Add a static method to the Utilizador schema for finding a Utilizador
+UtilizadorSchema.statics.findUtilizador = function({ name, password }) {
+    return this.findOne({ name, password });
 };
 
 // Compile the Utilizador model
