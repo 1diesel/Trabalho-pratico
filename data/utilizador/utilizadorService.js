@@ -1,5 +1,6 @@
 const config = require("../../config");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 function createToken(utilizador) {
     let token = jwt.sign(
@@ -21,8 +22,18 @@ function utilizadorCreate(utilizadorModel) {
     };
 
     function create(utilizador) {
-        let novoUtilizador = new utilizadorModel(utilizador);
-        return save(novoUtilizador);
+        return createPassword(utilizador).then((hashPassword, err) =>{
+            if (err) {
+                return Promise.reject("Não salvo");
+            }
+
+            let newUtilizadorWithPassword = {
+                ...utilizador,
+                password: hashPassword,
+            };
+            let newUtilizador = utilizadorModel(newUtilizadorWithPassword);
+            return save(newUtilizador);
+        });
     }
 
     function save(model) {
@@ -36,10 +47,13 @@ function utilizadorCreate(utilizadorModel) {
 
     function findUtilizador({ name, password }) {
         return new Promise(function (resolve, reject) {
-            utilizadorModel.findOne({ name, password })
+            utilizadorModel.findOne({ name })
                 .then((utilizador) => {
                     if (!utilizador) return reject("Utilizador não encontrado");
-                    return resolve(utilizador);
+                    return comparePassword(password, utilizador.password).then((match) => {
+                        if (!match) return reject("O Utilizador não é valido");
+                        return resolve(utilizador);
+                    });
                 })
                 .catch((err) => {
                     reject(`Ocorreu um problema com o login ${err}`);
@@ -59,6 +73,14 @@ function verifyToken(token) {
             return resolve(decoded);
         });
     });
+}
+
+function createPassword(utilizador) {
+    return bcrypt.hash(utilizador.password, config.saltRounds);
+}
+
+function comparePassword(password, hash) {
+    return bcrypt.compare(password, hash);
 }
 
 module.exports = {
