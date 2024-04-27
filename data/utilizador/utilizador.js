@@ -1,20 +1,22 @@
+// Importa as bibliotecas necessárias
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
-const scopes = require("./scopes");
+const scopes = require("./scopes"); // Importa os scopes de permissão
 
+// Define o esquema para as funções de autorização
 let RoleSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true }, // Nome da função
   scopes: [
     {
       type: String,
-      enum: [scopes["read-all"], scopes["read-posts"], scopes["manage-posts"]],
+      enum: [scopes["read-all"], scopes["read-posts"], scopes["manage-posts"]], // scopes permitidos para a função
     },
   ],
 });
 
-// Define the Utilizador schema
+// Define o esquema para os utilizadores
 const UtilizadorSchema = new Schema({
   name: { type: String, required: true },
   password: { type: String, required: true },
@@ -27,25 +29,28 @@ const UtilizadorSchema = new Schema({
   role: { type: RoleSchema },
 });
 
-// Add a static method to the Utilizador schema for verifying tokens
+// Adiciona um método estático ao esquema Utilizador para verificar tokens
 UtilizadorSchema.statics.verifyToken = function (token) {
   return new Promise((resolve, reject) => {
+    // Verifica o token com base na chave secreta
     jwt.verify(token, config.secret, (err, decoded) => {
       if (err) {
-        reject(err);
+        reject(err); // Rejeita a promessa se houver erro na verificação do token
       } else {
-        resolve(decoded);
+        resolve(decoded); // Resolve a promessa com os dados decodificados do token
       }
     });
   });
 };
 
-// Add a static method to the Utilizador schema for finding a Utilizador
+// Adiciona um método estático ao esquema Utilizador para encontrar um Utilizador
 UtilizadorSchema.statics.findUtilizador = function ({ name, password }) {
+  // Procura um utilizador com base no nome e na password fornecidos
   return this.findOne({ name, password });
 };
 
-const Utilizador = mongoose.model("Utilizador", UtilizadorSchema); // Compile the Utilizador model
+// Compila o modelo Utilizador a partir do esquema definido
+const Utilizador = mongoose.model("Utilizador", UtilizadorSchema);
 
-// Export the Utilizador model
+// Exporta o modelo Utilizador
 module.exports = Utilizador;
